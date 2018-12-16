@@ -1,24 +1,35 @@
-import { Observable } from 'rxjs';
+import { Observable, of, combineLatest, from } from 'rxjs';
 import { fromEvent } from 'rxjs';
+import { delay, mergeMap, map } from 'rxjs/operators';
+import { allMovies, allTvShows } from './movies';
+import { Media } from './model';
 
-var observable = Observable.create((observer: any) => {
-  observer.next('Hello World!');
-  observer.next('Hello Again!');
-  observer.complete();
-  observer.next('Bye');
+const a = [1, 2, 3, 4, 5, 6];
+const b = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+let streamA = of(a);
+let streamB = of(b);
+
+const combined$ = combineLatest(streamA, streamB);
+combined$.subscribe(val => logItem(val));
+
+const movies$ = from(allMovies);
+const tvShows$ = from(allTvShows);
+
+movies$.subscribe(movie => {
+  logMedia(movie);
 });
 
-observable.subscribe(
-  (x: any) => logItem(x),
-  (error: any) => logItem('Error: ' + error),
-  () => logItem('Completed')
-);
+tvShows$.subscribe(tv => {
+  logMedia(tv);
+});
 
-var mouseObservable$ = fromEvent(document.body, 'mousemove').subscribe(
-  (e: any) => {
-    logItem(`x:${e.pageX}, y:${e.pageY}`);
-  }
-);
+function logMedia(media: Media) {
+  const movieInfo = `${media.name}. Type: ${media.mediaType}. Direcor: ${
+    media.director.name
+  }`;
+  logItem(movieInfo);
+}
 
 function logItem(val: any) {
   var node = document.createElement('li');
