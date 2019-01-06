@@ -1,6 +1,6 @@
 import { Observable, of, combineLatest, from } from 'rxjs';
 import { fromEvent } from 'rxjs';
-import { delay, mergeMap, map, merge, filter } from 'rxjs/operators';
+import { delay, mergeMap, map, merge, filter, pluck } from 'rxjs/operators';
 import { allMovies, allTvShows } from './movies';
 import { Media } from './model';
 
@@ -24,12 +24,13 @@ tvShows$.subscribe(tv => {
   displayMedia(tv);
 });
 
+// when extracting a single property and not doing some sort of projection i.e. reshaping the output object, best to use pluck than map
 movies$
   .pipe(
-    map(movie => {
-      return movie.name;
-    }),
-    filter(x => x.toLowerCase() !== 'goodfellas')
+    pluck('name'),
+    filter((x: string) => {
+      return x.toLowerCase() !== 'goodfellas';
+    })
   )
   .subscribe(m => {
     if (m) {
